@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public float attackDuration = 0.2f;
     public float health = 6;
     public bool Damaged =false;
+    public float resetDamage;
 
     private Rigidbody2D rb;
     private Quaternion attackRotation;
@@ -73,7 +74,7 @@ public class Player : MonoBehaviour
             health--;
             gameObject.GetComponent<SpriteRenderer>().color = Color.red;
             Damaged = true;
-            Invoke("ResetDamage", 0.5f);
+            Invoke("ResetDamage", resetDamage);
         }
     }
 

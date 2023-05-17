@@ -24,6 +24,7 @@ public class Enemy : MonoBehaviour
     private Vector2 knockbackDirection;
     private float knockbackTimer = 0f;
 
+
     private void Awake()
     {
         sr= GetComponent<SpriteRenderer>();

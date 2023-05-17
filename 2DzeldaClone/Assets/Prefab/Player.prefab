@@ -272,6 +272,7 @@ MonoBehaviour:
   attackDuration: 0.2
   health: 6
   Damaged: 0
+  resetDamage: 0.1
 --- !u!58 &7086079625639750461
 CircleCollider2D:
   m_ObjectHideFlags: 0
