@@ -10,21 +10,32 @@ public class Enemy : MonoBehaviour
     public float knockbackDuration = 1f;
     public float rotationSpeed = 5f;
     public int maxHealth = 10;
+    public float knockbackSpeed = 5f;
 
     private int currentHealth;
+    private Animator animator;
+    public GameObject Poof;
+    public GameObject Weapon;
+    public float resetSpeed;
+    private SpriteRenderer sr;
 
     private Transform playerTransform;
-    private Rigidbody2D rb;
     private bool isKnockedBack = false;
     private Vector2 knockbackDirection;
     private float knockbackTimer = 0f;
 
+    private void Awake()
+    {
+        sr= GetComponent<SpriteRenderer>();
+        Poof.SetActive(false);
+    }
+
     void Start()
     {
+        animator = GetComponent<Animator>();
         currentHealth = maxHealth;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        rb = GetComponent<Rigidbody2D>();
-        rb.isKinematic = true; // Set the rigidbody to be kinematic initially
+        animator.Play("Knight_Normal");
     }
 
     void Update()
@@ -49,46 +60,66 @@ public class Enemy : MonoBehaviour
             {
                 isKnockedBack = false;
                 knockbackTimer = 0f;
-                rb.isKinematic = true; // Set the rigidbody back to kinematic
-                rb.freezeRotation = false; // Enable rotation
             }
         }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        
         if (collision.CompareTag("Weapon"))
         {
+            animator.Play("Knight_Damage");
             // Reduce health and apply knockback force to the enemy
             currentHealth -= 1;
 
             knockbackDirection = (transform.position - collision.transform.position).normalized;
-            rb.isKinematic = false; // Set the rigidbody to be non-kinematic during knockback
-            knockbackTimer = 0f;
-            rb.velocity = Vector2.zero;
-            rb.freezeRotation = true; // Disable rotation
             StartCoroutine(Knockback());
-
+            Invoke("ResetDamage", 0.3f);
             isKnockedBack = true;
         }
 
         if (currentHealth <= 0)
         {
-            // Enemy is defeated, do something (e.g. play death animation, drop item, etc.)
-            Destroy(gameObject);
+            Poof.SetActive(true);
+            sr.enabled= false;
+            Weapon.SetActive(false);
+            Invoke("ResetPoof", resetSpeed);
         }
+    }
+    private void ResetPoof()
+    {
+        Destroy(gameObject);
+    }
+    private void ResetDamage()
+    {
+        animator.Play("Knight_Normal");
     }
 
     IEnumerator Knockback()
     {
-        rb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
-        rb.drag = 0f; // Disable drag to allow knockback movement
+        Vector2 originalPosition = transform.position;
+        Vector2 targetPosition = originalPosition + knockbackDirection * knockbackForce;
 
-        yield return new WaitForSeconds(knockbackDuration);
+        float timer = 0f;
+        while (timer < knockbackDuration)
+        {
+            timer += Time.deltaTime;
+            float progress = timer / knockbackDuration;
+            transform.position = Vector2.Lerp(originalPosition, targetPosition, progress);
+            yield return null;
+        }
 
-        rb.velocity = Vector2.zero;
-        rb.drag = 5f; // Apply linear drag to reduce sliding
-        rb.isKinematic = true; // Set the rigidbody back to kinematic
-        rb.freezeRotation = false; // Enable rotation
+        // Apply knockback speed to the remaining distance
+        float remainingDistance = Vector2.Distance(transform.position, targetPosition);
+        float remainingTime = remainingDistance / knockbackSpeed;
+
+        while (remainingTime > 0f)
+        {
+            float step = knockbackSpeed * Time.deltaTime;
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, step);
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
     }
 }

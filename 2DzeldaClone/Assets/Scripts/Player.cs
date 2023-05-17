@@ -68,7 +68,6 @@ public class Player : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log(collision.gameObject);
         if (collision.gameObject.CompareTag("Damage") && Damaged == false)
         {
             health--;
