@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class Enemy : MonoBehaviour
 {
+    public float attackRange;
     public float speed = 3f;
     public float detectionRange = 5f;
     public float knockbackForce = 10f;
     public float knockbackDuration = 1f;
     public float rotationSpeed = 5f;
-    public int maxHealth = 10;
+    public int maxHealth = 6;
     public float knockbackSpeed = 5f;
 
     private int currentHealth;
@@ -27,7 +30,7 @@ public class Enemy : MonoBehaviour
 
     private void Awake()
     {
-        sr= GetComponent<SpriteRenderer>();
+        sr = GetComponent<SpriteRenderer>();
         Poof.SetActive(false);
     }
 
@@ -39,35 +42,42 @@ public class Enemy : MonoBehaviour
         animator.Play("Knight_Normal");
     }
 
-    void Update()
+void Update()
+{
+    float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+
+    if (distanceToPlayer < detectionRange)
     {
-        float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        transform.position += (Vector3)direction * speed * Time.deltaTime;
 
-        if (distanceToPlayer < detectionRange)
+        // Rotate towards the player with rotationSpeed
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+        Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+        if (distanceToPlayer < attackRange)
         {
-            Vector2 direction = (playerTransform.position - transform.position).normalized;
-            transform.position += (Vector3)direction * speed * Time.deltaTime;
-
-            // Rotate towards the player with rotationSpeed
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-            Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            Weapon.GetComponent<Animator>().Play("Spear");
         }
-
-        if (isKnockedBack)
+        else
         {
-            knockbackTimer += Time.deltaTime;
-            if (knockbackTimer >= knockbackDuration)
-            {
-                isKnockedBack = false;
-                knockbackTimer = 0f;
-            }
+            Weapon.GetComponent<Animator>().Play("Spear_Idel");
+        }
+        if (isKnockedBack)
+    {
+        knockbackTimer += Time.deltaTime;
+        if (knockbackTimer >= knockbackDuration)
+        {
+            isKnockedBack = false;
+            knockbackTimer = 0f;
         }
     }
+}
 
-    void OnTriggerEnter2D(Collider2D collision)
+void OnTriggerEnter2D(Collider2D collision)
     {
-        
+
         if (collision.CompareTag("Weapon"))
         {
             animator.Play("Knight_Damage");
@@ -83,7 +93,7 @@ public class Enemy : MonoBehaviour
         if (currentHealth <= 0)
         {
             Poof.SetActive(true);
-            sr.enabled= false;
+            sr.enabled = false;
             Weapon.SetActive(false);
             Invoke("ResetPoof", resetSpeed);
         }

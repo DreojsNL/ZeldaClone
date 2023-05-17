@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class Player : MonoBehaviour
     public float health = 6;
     public bool Damaged =false;
     public float resetDamage;
+    public Image healthImg;
+    public Sprite[] healthSprite;
 
     private Rigidbody2D rb;
     private Quaternion attackRotation;
@@ -26,6 +29,34 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (health == 6f)
+        {
+            healthImg.sprite = healthSprite[0];
+        }
+        if (health == 5f)
+        {
+            healthImg.sprite = healthSprite[1];
+        }
+        if (health == 4f)
+        {
+            healthImg.sprite = healthSprite[2];
+        }
+        if (health == 3f)
+        {
+            healthImg.sprite = healthSprite[3];
+        }
+        if (health == 2f)
+        {
+            healthImg.sprite = healthSprite[4];
+        }
+        if (health == 1f)
+        {
+            healthImg.sprite = healthSprite[5];
+        }
+        if (health == 0f)
+        {
+            healthImg.sprite = healthSprite[6];
+        }
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
