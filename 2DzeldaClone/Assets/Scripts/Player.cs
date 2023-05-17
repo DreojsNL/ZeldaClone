@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     public float attackRotationStart = 0f;
     public float attackRotationEnd = 90f;
     public float attackDuration = 0.2f;
+    public float health = 6;
+    public bool Damaged =false;
 
     private Rigidbody2D rb;
     private Quaternion attackRotation;
@@ -63,5 +65,22 @@ public class Player : MonoBehaviour
         attackObject.SetActive(false);
         attackObject.transform.localRotation = Quaternion.Euler(0, 0, attackRotationStart);
         isAttacking = false;
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log(collision.gameObject);
+        if (collision.gameObject.CompareTag("Damage") && Damaged == false)
+        {
+            health--;
+            gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+            Damaged = true;
+            Invoke("ResetDamage", 0.5f);
+        }
+    }
+
+    private void ResetDamage()
+    {
+        gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+        Damaged = false;
     }
 }
