@@ -15,6 +15,10 @@ public class Enemy : MonoBehaviour
     public int maxHealth = 6;
     public float knockbackSpeed = 5f;
 
+    public bool Rotates;
+    public bool hasWeapon;
+    public string weaponIdel;
+    public string weaponAtak;
     private int currentHealth;
     private Animator animator;
     public GameObject Poof;
@@ -27,15 +31,10 @@ public class Enemy : MonoBehaviour
     private Vector2 knockbackDirection;
     private float knockbackTimer = 0f;
 
-
-    private void Awake()
+    void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         Poof.SetActive(false);
-    }
-
-    void Start()
-    {
         animator = GetComponent<Animator>();
         currentHealth = maxHealth;
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
@@ -52,20 +51,27 @@ void Update()
         transform.position += (Vector3)direction * speed * Time.deltaTime;
 
         // Rotate towards the player with rotationSpeed
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        if(Rotates == true)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+                Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
     }
-        if (distanceToPlayer < attackRange)
+        if (hasWeapon)
         {
-            Weapon.GetComponent<Animator>().Play("Spear");
+            if (distanceToPlayer < attackRange)
+            {
+                Weapon.GetComponent<Animator>().Play(weaponAtak);
+            }
+            else
+            {
+                Weapon.GetComponent<Animator>().Play(weaponIdel);
+            }
         }
-        else
-        {
-            Weapon.GetComponent<Animator>().Play("Spear_Idel");
-        }
+        
         if (isKnockedBack)
-    {
+        {
         knockbackTimer += Time.deltaTime;
         if (knockbackTimer >= knockbackDuration)
         {

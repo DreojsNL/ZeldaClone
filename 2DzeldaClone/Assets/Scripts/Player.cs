@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     public float resetDamage;
     public Image healthImg;
     public Sprite[] healthSprite;
+    public GameObject deathScreen;
 
     private Rigidbody2D rb;
     private Quaternion attackRotation;
@@ -55,6 +56,7 @@ public class Player : MonoBehaviour
         }
         if (health == 0f)
         {
+            deathScreen.SetActive(true);
             healthImg.sprite = healthSprite[6];
         }
         float horizontal = Input.GetAxis("Horizontal");
