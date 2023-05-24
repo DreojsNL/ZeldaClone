@@ -11,10 +11,10 @@ public class Player : MonoBehaviour
     public float attackRotationEnd = 90f;
     public float attackDuration = 0.2f;
     public float health = 6;
-    public bool Damaged =false;
+    public bool Damaged = false;
     public float resetDamage;
     public Image healthImg;
-    public Sprite[] healthSprite;
+    public Sprite[] healthSprites;
     public GameObject deathScreen;
 
     private Rigidbody2D rb;
@@ -26,39 +26,11 @@ public class Player : MonoBehaviour
         attackObject.SetActive(false);
         rb = GetComponent<Rigidbody2D>();
         attackRotation = Quaternion.Euler(0, 0, attackRotationStart);
+        UpdateHealthSprite();
     }
 
     void Update()
     {
-        if (health == 6f)
-        {
-            healthImg.sprite = healthSprite[0];
-        }
-        if (health == 5f)
-        {
-            healthImg.sprite = healthSprite[1];
-        }
-        if (health == 4f)
-        {
-            healthImg.sprite = healthSprite[2];
-        }
-        if (health == 3f)
-        {
-            healthImg.sprite = healthSprite[3];
-        }
-        if (health == 2f)
-        {
-            healthImg.sprite = healthSprite[4];
-        }
-        if (health == 1f)
-        {
-            healthImg.sprite = healthSprite[5];
-        }
-        if (health == 0f)
-        {
-            deathScreen.SetActive(true);
-            healthImg.sprite = healthSprite[6];
-        }
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
@@ -100,6 +72,7 @@ public class Player : MonoBehaviour
         attackObject.transform.localRotation = Quaternion.Euler(0, 0, attackRotationStart);
         isAttacking = false;
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Damage") && Damaged == false)
@@ -108,6 +81,11 @@ public class Player : MonoBehaviour
             gameObject.GetComponent<SpriteRenderer>().color = Color.red;
             Damaged = true;
             Invoke("ResetDamage", resetDamage);
+            UpdateHealthSprite();
+            if (health <= 0)
+            {
+                deathScreen.SetActive(true);
+            }
         }
     }
 
@@ -115,5 +93,11 @@ public class Player : MonoBehaviour
     {
         gameObject.GetComponent<SpriteRenderer>().color = Color.white;
         Damaged = false;
+    }
+
+    private void UpdateHealthSprite()
+    {
+        int spriteIndex = Mathf.Clamp((int)health, 0, healthSprites.Length - 1);
+        healthImg.sprite = healthSprites[spriteIndex];
     }
 }
